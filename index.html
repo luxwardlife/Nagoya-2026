@@ -31,7 +31,8 @@ async function unlock(pw){
   var salt=buf.subarray(0,16),iv=buf.subarray(16,28),ct=buf.subarray(28);
   var k0=await crypto.subtle.importKey('raw',new TextEncoder().encode(pw),'PBKDF2',false,['deriveKey']);
   var k=await crypto.subtle.deriveKey({name:'PBKDF2',salt:salt,iterations:ITER,hash:'SHA-256'},k0,{name:'AES-GCM',length:256},false,['decrypt']);
-  return crypto.subtle.decrypt({name:'AES-GCM',iv:iv},k,ct);
+  var gz=await crypto.subtle.decrypt({name:'AES-GCM',iv:iv},k,ct);
+  return new Response(new Blob([gz]).stream().pipeThrough(new DecompressionStream('gzip'))).arrayBuffer();
 }
 async function go(pw,silent){
   var b=document.getElementById('b'),er=document.getElementById('e');
