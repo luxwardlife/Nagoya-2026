@@ -47,10 +47,11 @@ async function go(pw,silent){
   try{sessionStorage.setItem(KEY,pw)}catch(y){}
   var url=URL.createObjectURL(new Blob([pt],{type:'text/html;charset=utf-8'}));
   var v=document.getElementById('view');
-  v.onload=function(){document.getElementById('lock').style.display='none';v.style.display='block'};
+  v.onload=function(){document.getElementById('lock').style.display='none';v.style.display='block';try{if(sessionStorage.getItem('ngo-music')!=='off'&&bgm.paused)bgm.play().catch(function(){})}catch(x){}};
   v.src=url;
 }
-document.getElementById('f').addEventListener('submit',function(ev){ev.preventDefault();var v=document.getElementById('pw').value;if(v)go(v)});
+var bgm=new Audio(new URL('bgm.mp4',location.href).href);bgm.loop=true;bgm.volume=0.4;bgm.preload='auto';window.__bgm=bgm;
+document.getElementById('f').addEventListener('submit',function(ev){ev.preventDefault();var v=document.getElementById('pw').value;if(!v)return;try{sessionStorage.removeItem('ngo-music')}catch(x){}bgm.muted=true;bgm.play().then(function(){bgm.pause();bgm.currentTime=0;bgm.muted=false;window.__bgmReady=true}).catch(function(){bgm.muted=false});go(v)});
 getData().catch(function(){});
 try{var s=sessionStorage.getItem(KEY);if(s)go(s,true)}catch(x){}
 </script></body></html>
